@@ -22,20 +22,42 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
 | Backend | Rust + Axum + SQLx + Tokio |
 | Frontend | React + TypeScript + Vite + TailwindCSS |
 | Database | PostgreSQL |
+| ORM | Drizzle ORM |
 | Produk | Digiflazz |
 | Payment | Midtrans |
 
 ## Struktur
 
-| Folder | Fungsi |
-|--------|--------|
-| api/ | Backend Rust (Axum + SQLx) |
-| web/ | Frontend user (React + TailwindCSS) |
-| admin/ | Frontend admin (React + TailwindCSS) |
-| database/ | Schema SQL |
-| start.sh | Start semua layanan |
-| stop.sh | Stop semua layanan |
-| docker-compose.yml | Docker setup |
+    pixel-pay/
+    +-- api/                        Backend (Rust + Axum)
+    |   +-- src/handlers/           Auth, wallet, produk, transaksi, payment, admin
+    |   +-- src/middleware/         JWT auth & admin guard
+    |   +-- src/models/            Data models
+    |   +-- src/services/          Digiflazz, Midtrans, transaksi, wallet
+    |   +-- src/routes/            API routing
+    |   +-- migrations/            Database migrations
+    |   +-- .env                   Environment variables
+    |   +-- Cargo.toml
+    +-- web/                        Frontend user (React + TailwindCSS)
+    |   +-- src/pages/             Halaman user
+    |   +-- src/components/        Komponen UI
+    |   +-- src/hooks/             Custom hooks
+    |   +-- src/lib/               API client
+    |   +-- public/                PWA assets (manifest, icons, service worker)
+    +-- admin/                      Frontend admin (React + TailwindCSS)
+    |   +-- src/pages/             Halaman admin
+    |   +-- src/components/        Komponen UI admin
+    |   +-- src/hooks/             Custom hooks
+    |   +-- src/lib/               API client
+    +-- database/                   Schema & seed (Drizzle ORM)
+    |   +-- src/schema/            Database schema
+    |   +-- src/seed.ts            Seed data
+    +-- start.sh                    Start semua layanan
+    +-- stop.sh                     Stop semua layanan
+    +-- setup.sh                    Setup awal
+    +-- docker-compose.yml          Docker setup
+    +-- package.json                Monorepo config (Turborepo)
+    +-- .env.example                Template environment
 
 ## Install (Termux)
 
