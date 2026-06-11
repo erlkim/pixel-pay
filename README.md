@@ -17,22 +17,25 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
 
 ## Tech Stack
 
-- **Backend:** Rust, Axum, SQLx, Tokio
-- **Frontend:** React, TypeScript, Vite, TailwindCSS
-- **Database:** PostgreSQL
-- **Produk:** Digiflazz
-- **Payment:** Midtrans
+| Layer | Teknologi |
+|-------|-----------|
+| Backend | Rust + Axum + SQLx + Tokio |
+| Frontend | React + TypeScript + Vite + TailwindCSS |
+| Database | PostgreSQL |
+| Produk | Digiflazz |
+| Payment | Midtrans |
 
 ## Struktur
 
-    pixel-pay/
-    +-- api/            Backend (Rust + Axum)
-    +-- web/            Frontend user (React)
-    +-- admin/          Frontend admin (React)
-    +-- database/       SQL schema
-    +-- start.sh
-    +-- stop.sh
-    +-- docker-compose.yml
+| Folder | Fungsi |
+|--------|--------|
+| api/ | Backend Rust (Axum + SQLx) |
+| web/ | Frontend user (React + TailwindCSS) |
+| admin/ | Frontend admin (React + TailwindCSS) |
+| database/ | Schema SQL |
+| start.sh | Start semua layanan |
+| stop.sh | Stop semua layanan |
+| docker-compose.yml | Docker setup |
 
 ## Install (Termux)
 
@@ -78,19 +81,24 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
 
 Salin api/.env.example ke api/.env lalu isi:
 
-- DATABASE_URL - koneksi PostgreSQL
-- DIGIFLAZZ_USERNAME / DIGIFLAZZ_API_KEY - dari https://digiflazz.com
-- MIDTRANS_SERVER_KEY / MIDTRANS_CLIENT_KEY - dari https://midtrans.com
+| Variable | Keterangan |
+|----------|-----------|
+| DATABASE_URL | Koneksi PostgreSQL |
+| JWT_SECRET | Secret key untuk JWT |
+| DIGIFLAZZ_USERNAME | Username dari https://digiflazz.com |
+| DIGIFLAZZ_API_KEY | API key dari Digiflazz |
+| MIDTRANS_SERVER_KEY | Server key dari https://midtrans.com |
+| MIDTRANS_CLIENT_KEY | Client key dari Midtrans |
 
 API key yang diawali dev- otomatis pakai mode testing.
 
 ## Akses
 
-- User: http://localhost:5173
-- Admin: http://localhost:5174
-- API: http://localhost:3001
-
-## Shortcut
+| Layanan | URL |
+|---------|-----|
+| User | http://localhost:5173 |
+| Admin | http://localhost:5174 |
+| API | http://localhost:3001 |
 
     ./start.sh    start semua
     ./stop.sh     stop semua
