@@ -16,38 +16,162 @@ Pixel Pay adalah platform Top Up Game & PPOB (Payment Point Online Bank) dengan 
 
 ```
 pixel-pay/
-├─ README.md
-├─ package.json
-├─ start.sh
-├─ stop.sh
-├─ apps/
-│   ├─ api/  Backend (Rust + Axum)
-│   │   ├─ Cargo.toml
-│   │   ├─ .env
-│   │   └─ src/
-│   │       ├─ main.rs
-│   │       ├─ config.rs
-│   │       ├─ db.rs
-│   │       ├─ error.rs
-│   │       ├─ handlers/
-│   │       ├─ middleware/
-│   │       ├─ models/
-│   │       ├─ routes/
-│   │       └─ services/
-│   ├─ web/  Frontend user (React + Vite)
-│   │   ├─ package.json
-│   │   └─ src/
-│   │       ├─ pages/
-│   │       ├─ components/
-│   │       ├─ hooks/
-│   │       └─ lib/
-│   └─ admin/  Frontend admin (React + Vite)
-│       ├─ package.json
-│       └─ src/
-│           ├─ pages/
-│           ├─ components/
-│           ├─ hooks/
-│           └─ lib/
++-- README.md
++-- package.json
++-- package-lock.json
++-- turbo.json
++-- docker-compose.yml
++-- setup.sh
++-- start.sh
++-- stop.sh
++-- Cargo.toml
++-- Cargo.lock
++-- .env.example
++-- .gitignore
++-- database/
+|   +-- package.json
+|   +-- tsconfig.json
+|   +-- drizzle.config.ts
+|   +-- src/
+|       +-- client.ts
+|       +-- index.ts
+|       +-- seed.ts
+|       +-- schema/
+|           +-- index.ts
+|           +-- categories.ts
+|           +-- products.ts
+|           +-- transactions.ts
+|           +-- users.ts
+|           +-- wallets.ts
++-- apps/
+|   +-- api/  Backend (Rust + Axum)
+|   |   +-- Cargo.toml
+|   |   +-- .env
+|   |   +-- .env.example
+|   |   +-- src/
+|   |       +-- main.rs
+|   |       +-- config.rs
+|   |       +-- db.rs
+|   |       +-- error.rs
+|   |       +-- handlers/
+|   |       |   +-- mod.rs
+|   |       |   +-- admin.rs
+|   |       |   +-- admin_detail.rs
+|   |       |   +-- admin_export.rs
+|   |       |   +-- auth.rs
+|   |       |   +-- notification.rs
+|   |       |   +-- payment.rs
+|   |       |   +-- product.rs
+|   |       |   +-- profile.rs
+|   |       |   +-- transaction.rs
+|   |       |   +-- voucher.rs
+|   |       |   +-- wallet.rs
+|   |       +-- middleware/
+|   |       |   +-- mod.rs
+|   |       |   +-- auth.rs
+|   |       |   +-- security.rs
+|   |       +-- models/
+|   |       |   +-- mod.rs
+|   |       |   +-- category.rs
+|   |       |   +-- notification.rs
+|   |       |   +-- product.rs
+|   |       |   +-- transaction.rs
+|   |       |   +-- user.rs
+|   |       |   +-- wallet.rs
+|   |       +-- routes/
+|   |       |   +-- mod.rs
+|   |       |   +-- api.rs
+|   |       +-- services/
+|   |           +-- mod.rs
+|   |           +-- auth_service.rs
+|   |           +-- digiflazz_service.rs
+|   |           +-- midtrans.rs
+|   |           +-- product_service.rs
+|   |           +-- transaction_service.rs
+|   |           +-- wallet_service.rs
+|   +-- web/  Frontend User (React + Vite)
+|   |   +-- package.json
+|   |   +-- index.html
+|   |   +-- vite.config.ts
+|   |   +-- tsconfig.json
+|   |   +-- tailwind.config.ts
+|   |   +-- postcss.config.js
+|   |   +-- public/
+|   |   |   +-- favicon.svg
+|   |   |   +-- icon-192.svg
+|   |   |   +-- icon-512.svg
+|   |   |   +-- manifest.json
+|   |   |   +-- sw.js
+|   |   +-- src/
+|   |       +-- App.tsx
+|   |       +-- main.tsx
+|   |       +-- index.css
+|   |       +-- components/
+|   |       |   +-- home/
+|   |       |   |   +-- Hero.tsx
+|   |       |   +-- layout/
+|   |       |       +-- Footer.tsx
+|   |       |       +-- Header.tsx
+|   |       |       +-- MainLayout.tsx
+|   |       +-- lib/
+|   |       |   +-- api.ts
+|   |       +-- pages/
+|   |           +-- CheckoutPage.tsx
+|   |           +-- ContactPage.tsx
+|   |           +-- FaqPage.tsx
+|   |           +-- HistoryPage.tsx
+|   |           +-- HomePage.tsx
+|   |           +-- InvoicePage.tsx
+|   |           +-- LoginPage.tsx
+|   |           +-- NotificationsPage.tsx
+|   |           +-- ProductsPage.tsx
+|   |           +-- ProfilePage.tsx
+|   |           +-- SearchPage.tsx
+|   |           +-- TermsPage.tsx
+|   |           +-- TopUpPage.tsx
+|   |           +-- TopupGuidePage.tsx
+|   |           +-- TransactionPage.tsx
+|   |           +-- UserDashboard.tsx
+|   |           +-- VoucherPage.tsx
+|   |           +-- WalletPage.tsx
+|   +-- admin/  Frontend Admin (React + Vite)
+|       +-- package.json
+|       +-- index.html
+|       +-- vite.config.ts
+|       +-- tsconfig.json
+|       +-- tailwind.config.ts
+|       +-- postcss.config.js
+|       +-- src/
+|           +-- App.tsx
+|           +-- main.tsx
+|           +-- index.css
+|           +-- components/
+|           |   +-- TransactionDetailModal.tsx
+|           |   +-- UserDetailModal.tsx
+|           |   +-- layout/
+|           |   |   +-- AdminLayout.tsx
+|           |   |   +-- Sidebar.tsx
+|           |   |   +-- Topbar.tsx
+|           |   +-- ui/
+|           |       +-- PixelBadge.tsx
+|           |       +-- PixelButton.tsx
+|           |       +-- PixelCard.tsx
+|           +-- lib/
+|           |   +-- api.ts
+|           +-- pages/
+|               +-- BroadcastPage.tsx
+|               +-- DashboardPage.tsx
+|               +-- DigiflazzPage.tsx
+|               +-- LoginPage.tsx
+|               +-- LogsPage.tsx
+|               +-- PaymentsPage.tsx
+|               +-- PriceManagementPage.tsx
+|               +-- ProductsPage.tsx
+|               +-- ReportsPage.tsx
+|               +-- SettingsPage.tsx
+|               +-- TransactionsPage.tsx
+|               +-- UsersPage.tsx
+|               +-- VoucherManagementPage.tsx
 ```
 
 ## Fitur Utama
