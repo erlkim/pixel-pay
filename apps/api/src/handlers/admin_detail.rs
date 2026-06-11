@@ -546,3 +546,216 @@ pub async fn log_action(pool: &sqlx::PgPool, admin_id: Uuid, action: &str, targe
     .bind(admin_id).bind(action).bind(target_type).bind(target_id).bind(details)
     .execute(pool).await;
 }
+
+
+// ==================== VOUCHER MANAGEMENT ====================
+
+pub async fn admin_list_vouchers(
+    State(s): State<AdminState>,
+    c: AdminClaims,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let vouchers = sqlx::query(
+        "SELECT * FROM vouchers ORDER BY created_at DESC"
+    )
+    .fetch_all(&s.pool)
+    .await
+    .map_err(AppError::Database)?;
+
+    let result: Vec<serde_json::Value> = vouchers.iter().map(|v| {
+        serde_json::json!({
+            "id": v.get::<uuid::Uuid, _>("id"),
+            "code": v.get::<String, _>("code"),
+            "description": v.get::<Option<String>, _>("description"),
+            "discount_type": v.get::<String, _>("discount_type"),
+            "discount_value": v.get::<rust_decimal::Decimal, _>("discount_value").to_string(),
+            "min_transaction": v.get::<rust_decimal::Decimal, _>("min_transaction").to_string(),
+            "max_discount": v.get::<Option<rust_decimal::Decimal>, _>("max_discount").map(|d| d.to_string()),
+            "usage_limit": v.get::<i32, _>("usage_limit"),
+            "used_count": v.get::<i32, _>("used_count"),
+            "is_active": v.get::<bool, _>("is_active"),
+            "expires_at": v.get::<Option<chrono::NaiveDateTime>, _>("expires_at"),
+            "created_at": v.get::<chrono::NaiveDateTime, _>("created_at"),
+        })
+    }).collect();
+
+    log_action(&s.pool, c.claims.sub, "list_vouchers", "voucher", "", "List all vouchers").await;
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "data": { "vouchers": result }
+    })))
+}
+
+pub async fn admin_create_voucher(
+    State(s): State<AdminState>,
+    c: AdminClaims,
+    Json(req): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let code = req.get("code").and_then(|v| v.as_str()).unwrap_or("").to_uppercase();
+    let description = req.get("description").and_then(|v| v.as_str()).unwrap_or("");
+    let discount_type = req.get("discount_type").and_then(|v| v.as_str()).unwrap_or("percentage");
+    let discount_value: f64 = req.get("discount_value").and_then(|v| v.as_f64()).unwrap_or(0.0);
+    let min_transaction: f64 = req.get("min_transaction").and_then(|v| v.as_f64()).unwrap_or(0.0);
+    let max_discount = req.get("max_discount").and_then(|v| v.as_f64());
+    let usage_limit: i32 = req.get("usage_limit").and_then(|v| v.as_i64()).unwrap_or(100) as i32;
+    let expires_at = req.get("expires_at").and_then(|v| v.as_str());
+
+    if code.is_empty() {
+        return Err(AppError::Validation("Kode voucher wajib diisi".into()));
+    }
+    if code.len() < 3 || code.len() > 50 {
+        return Err(AppError::Validation("Kode voucher 3-50 karakter".into()));
+    }
+    if discount_value <= 0.0 {
+        return Err(AppError::Validation("Nilau diskon harus lebih dari 0".into()));
+    }
+    if discount_type != "percentage" && discount_type != "fixed" {
+        return Err(AppError::Validation("Tipe diskon: percentage atau fixed".into()));
+    }
+    if usage_limit < 1 {
+        return Err(AppError::Validation("Batas penggunaan minimal 1".into()));
+    }
+
+    let voucher = sqlx::query(
+        "INSERT INTO vouchers (code, description, discount_type, discount_value, min_transaction, max_discount, usage_limit, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING id"
+    )
+    .bind(&code)
+    .bind(if description.is_empty() { None } else { Some(description) })
+    .bind(discount_type)
+    .bind(rust_decimal::Decimal::from_f64_retain(discount_value).unwrap_or_default())
+    .bind(rust_decimal::Decimal::from_f64_retain(min_transaction).unwrap_or_default())
+    .bind(max_discount.map(|d| rust_decimal::Decimal::from_f64_retain(d).unwrap_or_default()))
+    .bind(usage_limit)
+    .bind(expires_at.and_then(|s| chrono::NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S").ok()))
+    .fetch_one(&s.pool)
+    .await
+    .map_err(|e| {
+        if e.to_string().contains("unique") || e.to_string().contains("duplicate") {
+            AppError::Validation(format!("Kode voucher '{}' sudah ada", code))
+        } else {
+            AppError::Database(e)
+        }
+    })?;
+
+    let vid: uuid::Uuid = voucher.get("id");
+    log_action(&s.pool, c.claims.sub, "create_voucher", "voucher", &vid.to_string(), &format!("Created voucher: {}", code)).await;
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": format!("Voucher '{}' berhasil dibuat", code),
+        "data": { "voucher_id": vid, "code": code }
+    })))
+}
+
+pub async fn admin_update_voucher(
+    State(s): State<AdminState>,
+    c: AdminClaims,
+    axum::extract::Path(id): axum::extract::Path<uuid::Uuid>,
+    Json(req): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let existing = sqlx::query("SELECT id FROM vouchers WHERE id = $1")
+        .bind(id)
+        .fetch_optional(&s.pool)
+        .await
+        .map_err(AppError::Database)?
+        .ok_or_else(|| AppError::NotFound("Voucher tidak ditemukan".into()))?;
+    let _ = existing;
+
+    let description = req.get("description").and_then(|v| v.as_str());
+    let discount_type = req.get("discount_type").and_then(|v| v.as_str());
+    let discount_value = req.get("discount_value").and_then(|v| v.as_f64());
+    let min_transaction = req.get("min_transaction").and_then(|v| v.as_f64());
+    let max_discount = req.get("max_discount").and_then(|v| v.as_f64());
+    let usage_limit = req.get("usage_limit").and_then(|v| v.as_i64()).map(|v| v as i32);
+    let is_active = req.get("is_active").and_then(|v| v.as_bool());
+    let expires_at = req.get("expires_at").and_then(|v| v.as_str());
+
+    sqlx::query(
+        "UPDATE vouchers SET
+         description = COALESCE($1, description),
+         discount_type = COALESCE($2, discount_type),
+         discount_value = COALESCE($3, discount_value),
+         min_transaction = COALESCE($4, min_transaction),
+         max_discount = $5,
+         usage_limit = COALESCE($6, usage_limit),
+         is_active = COALESCE($7, is_active),
+         expires_at = $8
+         WHERE id = $9"
+    )
+    .bind(description)
+    .bind(discount_type)
+    .bind(discount_value.map(|v| rust_decimal::Decimal::from_f64_retain(v).unwrap_or_default()))
+    .bind(min_transaction.map(|v| rust_decimal::Decimal::from_f64_retain(v).unwrap_or_default()))
+    .bind(max_discount.map(|v| rust_decimal::Decimal::from_f64_retain(v).unwrap_or_default()))
+    .bind(usage_limit)
+    .bind(is_active)
+    .bind(expires_at.and_then(|s| chrono::NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S").ok()))
+    .bind(id)
+    .execute(&s.pool)
+    .await
+    .map_err(AppError::Database)?;
+
+    log_action(&s.pool, c.claims.sub, "update_voucher", "voucher", &id.to_string(), "Updated voucher").await;
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": "Voucher berhasil diperbarui"
+    })))
+}
+
+pub async fn admin_delete_voucher(
+    State(s): State<AdminState>,
+    c: AdminClaims,
+    axum::extract::Path(id): axum::extract::Path<uuid::Uuid>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let result = sqlx::query("DELETE FROM vouchers WHERE id = $1")
+        .bind(id)
+        .execute(&s.pool)
+        .await
+        .map_err(AppError::Database)?;
+
+    if result.rows_affected() == 0 {
+        return Err(AppError::NotFound("Voucher tidak ditemukan".into()));
+    }
+
+    log_action(&s.pool, c.claims.sub, "delete_voucher", "voucher", &id.to_string(), "Deleted voucher").await;
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": "Voucher berhasil dihapus"
+    })))
+}
+
+pub async fn admin_toggle_voucher(
+    State(s): State<AdminState>,
+    c: AdminClaims,
+    axum::extract::Path(id): axum::extract::Path<uuid::Uuid>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let result = sqlx::query(
+        "UPDATE vouchers SET is_active = NOT is_active WHERE id = $1 RETURNING code, is_active"
+    )
+    .bind(id)
+    .fetch_one(&s.pool)
+    .await
+    .map_err(|e| {
+        if e.to_string().contains("no rows") {
+            AppError::NotFound("Voucher tidak ditemukan".into())
+        } else {
+            AppError::Database(e)
+        }
+    })?;
+
+    let code: String = result.get("code");
+    let active: bool = result.get("is_active");
+    let status = if active { "diaktifkan" } else { "dinonaktifkan" };
+
+    log_action(&s.pool, c.claims.sub, "toggle_voucher", "voucher", &id.to_string(), &format!("Voucher {} {}", code, status)).await;
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": format!("Voucher '{}' {}", code, status),
+        "data": { "is_active": active }
+    })))
+}

@@ -1,4 +1,4 @@
-use axum::{routing::{get, post, put}, Router, middleware};
+use axum::{routing::{get, post, put, delete}, Router, middleware};
 use sqlx::PgPool;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 use crate::{
@@ -94,6 +94,12 @@ pub fn build_router(pool: PgPool, config: AppConfig) -> Router {
         .route("/logs", get(admin_detail::admin_logs))
         .route("/broadcast", post(admin_detail::broadcast_notification))
         .route("/payments", get(payment::admin_list_payments))
+        // Voucher CRUD
+        .route("/vouchers", get(admin_detail::admin_list_vouchers))
+        .route("/vouchers", post(admin_detail::admin_create_voucher))
+        .route("/vouchers/:id", put(admin_detail::admin_update_voucher))
+        .route("/vouchers/:id", delete(admin_detail::admin_delete_voucher))
+        .route("/vouchers/:id/toggle", post(admin_detail::admin_toggle_voucher))
         .with_state(adm_s);
 
     let webhook_r = Router::new()
