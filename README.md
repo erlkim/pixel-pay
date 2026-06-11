@@ -4,34 +4,35 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
 
 ## Fitur
 
-- Beli produk digital (pulsa, data, PLN, game, e-money, TV kabel)
-- Top up saldo via payment gateway (Midtrans)
-- 13 metode bayar (VA, e-wallet, QRIS, kartu kredit, minimarket)
+- Produk digital dari Digiflazz (pulsa, data, PLN, game, e-money, TV kabel)
+- Top up saldo via Midtrans (VA, e-wallet, QRIS, kartu kredit, minimarket)
 - Voucher dan promo
 - Notifikasi real-time
-- Pencarian produk
+- Pencarian produk global
 - Profil dan ubah password
-- Admin panel lengkap (dashboard, user, transaksi, harga, laporan, broadcast, log)
+- PWA (install sebagai app)
 - Auto-refund jika transaksi gagal
-- PWA
+- Admin panel (dashboard, user, transaksi, harga, voucher, laporan, broadcast, log aktivitas)
+- Keamanan: race condition protection, XSS sanitize, JWT auth, role-based access
 
 ## Tech Stack
 
-- Rust + Axum + SQLx (backend)
-- React + TypeScript + Vite + TailwindCSS (frontend)
-- PostgreSQL (database)
-- Digiflazz (produk digital)
-- Midtrans (payment gateway)
+- **Backend:** Rust, Axum, SQLx, Tokio
+- **Frontend:** React, TypeScript, Vite, TailwindCSS
+- **Database:** PostgreSQL
+- **Produk:** Digiflazz
+- **Payment:** Midtrans
 
 ## Struktur
 
     pixel-pay/
-    +-- api/          Rust backend
-    +-- web/          React user frontend
-    +-- admin/        React admin frontend
-    +-- database/     SQL schema
+    +-- api/            Backend (Rust + Axum)
+    +-- web/            Frontend user (React)
+    +-- admin/          Frontend admin (React)
+    +-- database/       SQL schema
     +-- start.sh
     +-- stop.sh
+    +-- docker-compose.yml
 
 ## Install (Termux)
 
@@ -65,15 +66,23 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
     cd api && cargo build --release && cd ..
     ./start.sh
 
+## Install (Docker)
+
+    git clone https://github.com/erlkim/pixel-pay.git
+    cd pixel-pay
+    cp api/.env.example api/.env
+    nano api/.env
+    docker-compose up -d
+
 ## Environment
 
-isi api/.env dari api/.env.example:
+Salin api/.env.example ke api/.env lalu isi:
 
-- DATABASE_URL
-- DIGIFLAZZ_USERNAME / DIGIFLAZZ_API_KEY (https://digiflazz.com)
-- MIDTRANS_SERVER_KEY / MIDTRANS_CLIENT_KEY (https://midtrans.com)
+- DATABASE_URL - koneksi PostgreSQL
+- DIGIFLAZZ_USERNAME / DIGIFLAZZ_API_KEY - dari https://digiflazz.com
+- MIDTRANS_SERVER_KEY / MIDTRANS_CLIENT_KEY - dari https://midtrans.com
 
-key dev- otomatis mode testing.
+API key yang diawali dev- otomatis pakai mode testing.
 
 ## Akses
 
@@ -81,14 +90,30 @@ key dev- otomatis mode testing.
 - Admin: http://localhost:5174
 - API: http://localhost:3001
 
-    ./start.sh    start
-    ./stop.sh     stop
+## Shortcut
+
+    ./start.sh    start semua
+    ./stop.sh     stop semua
 
 ## Default Account
 
-- Admin: admin2@pixelpay.id / admin123
-- User: baru@test.com / 123456
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin2@pixelpay.id | admin123 |
+| User | baru@test.com | 123456 |
+
+## Test Case (Digiflazz dev mode)
+
+| No HP | Hasil |
+|-------|-------|
+| 087800001230 | Sukses |
+| 087800001231 | Pending |
+| 087800001232 | Gagal |
 
 ## Lisensi
 
 MIT
+
+---
+
+Built with MiMo-V2.5-Pro
