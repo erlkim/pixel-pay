@@ -157,6 +157,18 @@ Salin apps/api/.env.example ke apps/api/.env lalu isi:
 
 API key yang diawali dev- otomatis pakai mode testing.
 
+
+
+## Shortcut
+
+    ./start.sh    start semua layanan
+    ./stop.sh     stop semua layanan
+
+ | Email | Password |
+|------|-------|----------|
+| Admin | admin2@pixelpay.id | admin123 |
+| User | baru@test.com | 123456 |
+
 ## Akses
 
 | Layanan | URL |
@@ -167,8 +179,10 @@ API key yang diawali dev- otomatis pakai mode testing.
 
 ## Shortcut
 
-    ./start.sh    start semua layanan
-    ./stop.sh     stop semua layanan
+```bash
+./start.sh    start semua layanan
+./stop.sh     stop semua layanan
+```
 
 ## Default Account
 
