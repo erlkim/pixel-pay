@@ -1,65 +1,140 @@
 # Pixel Pay
 
-Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
-
-## Fitur
-
-- Produk digital dari Digiflazz (pulsa, data, PLN, game, e-money, TV kabel)
-- Top up saldo via Midtrans (VA, e-wallet, QRIS, kartu kredit, minimarket)
-- Voucher dan promo
-- Notifikasi real-time
-- Pencarian produk global
-- Profil dan ubah password
-- PWA (install sebagai app)
-- Auto-refund jika transaksi gagal
-- Admin panel (dashboard, user, transaksi, harga, voucher, laporan, broadcast, log aktivitas)
-- Keamanan: race condition protection, XSS sanitize, JWT auth, role-based access
+Pixel Pay adalah platform Top Up Game & PPOB (Payment Point Online Bank) dengan nuansa retro 8-bit. Dibangun dengan arsitektur monorepo, menggabungkan Rust (Axum) untuk backend berperforma tinggi dan React untuk frontend yang responsif.
 
 ## Tech Stack
 
-| Layer | Teknologi |
-|-------|-----------|
-| Backend | Rust + Axum + SQLx + Tokio |
-| Frontend | React + TypeScript + Vite + TailwindCSS |
-| Database | PostgreSQL |
-| ORM | Drizzle ORM |
-| Produk | Digiflazz |
-| Payment | Midtrans |
+| Layer | Framework | Deskripsi |
+|-------|-----------|-----------|
+| Backend API | Rust + Axum | Backend utama untuk RESTful API & integrasi Digiflazz/Midtrans |
+| Web Client | React + Vite | Frontend untuk pengguna akhir (customer portal) |
+| Admin Panel | React + Vite | Panel admin dan manajemen platform |
+| Database | PostgreSQL + Drizzle ORM | Database relasional & schema management |
+| Monorepo | Turborepo + npm workspaces | Pengelola workspace untuk efisiensi build |
 
-## Struktur
+## Struktur Proyek
 
-    pixel-pay/
-    +-- api/                        Backend (Rust + Axum)
-    |   +-- src/handlers/           Auth, wallet, produk, transaksi, payment, admin
-    |   +-- src/middleware/         JWT auth & admin guard
-    |   +-- src/models/            Data models
-    |   +-- src/services/          Digiflazz, Midtrans, transaksi, wallet
-    |   +-- src/routes/            API routing
-    |   +-- migrations/            Database migrations
-    |   +-- .env                   Environment variables
-    |   +-- Cargo.toml
-    +-- web/                        Frontend user (React + TailwindCSS)
-    |   +-- src/pages/             Halaman user
-    |   +-- src/components/        Komponen UI
-    |   +-- src/hooks/             Custom hooks
-    |   +-- src/lib/               API client
-    |   +-- public/                PWA assets (manifest, icons, service worker)
-    +-- admin/                      Frontend admin (React + TailwindCSS)
-    |   +-- src/pages/             Halaman admin
-    |   +-- src/components/        Komponen UI admin
-    |   +-- src/hooks/             Custom hooks
-    |   +-- src/lib/               API client
-    +-- database/                   Schema & seed (Drizzle ORM)
-    |   +-- src/schema/            Database schema
-    |   +-- src/seed.ts            Seed data
-    +-- start.sh                    Start semua layanan
-    +-- stop.sh                     Stop semua layanan
-    +-- setup.sh                    Setup awal
-    +-- docker-compose.yml          Docker setup
-    +-- package.json                Monorepo config (Turborepo)
-    +-- .env.example                Template environment
+    pixel-pay
+    |-- README.md
+    |-- package.json
+    |-- turbo.json
+    |-- setup.sh
+    |-- start.sh
+    |-- stop.sh
+    |-- docker-compose.yml
+    |-- .env.example
+    |-- .gitignore
+    |-- api/
+    |   |-- Cargo.toml
+    |   |-- .env
+    |   |-- .env.example
+    |   |-- migrations/
+    |   +-- src/
+    |       |-- main.rs
+    |       |-- config.rs
+    |       |-- db.rs
+    |       |-- error.rs
+    |       |-- handlers/
+    |       |   |-- auth.rs
+    |       |   |-- wallet.rs
+    |       |   |-- product.rs
+    |       |   |-- transaction.rs
+    |       |   |-- payment.rs
+    |       |   |-- profile.rs
+    |       |   |-- notification.rs
+    |       |   |-- voucher.rs
+    |       |   |-- admin.rs
+    |       |   |-- admin_detail.rs
+    |       |   +-- admin_export.rs
+    |       |-- middleware/
+    |       |   +-- auth.rs
+    |       |-- models/
+    |       |-- routes/
+    |       |   +-- api.rs
+    |       +-- services/
+    |           |-- digiflazz_service.rs
+    |           |-- midtrans.rs
+    |           |-- transaction_service.rs
+    |           +-- wallet_service.rs
+    |-- web/
+    |   |-- index.html
+    |   |-- package.json
+    |   |-- vite.config.ts
+    |   |-- tailwind.config.ts
+    |   |-- tsconfig.json
+    |   |-- postcss.config.js
+    |   +-- src/
+    |       |-- main.tsx
+    |       |-- App.tsx
+    |       |-- index.css
+    |       |-- lib/
+    |       |-- hooks/
+    |       |-- components/
+    |       +-- pages/
+    |-- admin/
+    |   |-- index.html
+    |   |-- package.json
+    |   |-- vite.config.ts
+    |   |-- tailwind.config.ts
+    |   |-- tsconfig.json
+    |   |-- postcss.config.js
+    |   +-- src/
+    |       |-- main.tsx
+    |       |-- App.tsx
+    |       |-- index.css
+    |       |-- lib/
+    |       |-- hooks/
+    |       |-- components/
+    |       +-- pages/
+    +-- database/
+        |-- package.json
+        |-- tsconfig.json
+        |-- drizzle.config.ts
+        +-- src/
+            |-- index.ts
+            |-- client.ts
+            |-- seed.ts
+            +-- schema/
 
-## Install (Termux)
+## Fitur Utama
+
+### Untuk Pengguna
+
+- **Produk Digital** — Pulsa, data internet, token PLN, voucher game, e-money, TV kabel
+- **Payment Gateway** — 13 metode bayar via Midtrans (VA, e-wallet, QRIS, kartu kredit, minimarket)
+- **Top Up Saldo** — Isi saldo untuk transaksi lebih cepat
+- **Voucher & Promo** — Gunakan voucher untuk diskon
+- **Notifikasi** — Status transaksi real-time
+- **Pencarian** — Cari produk dari seluruh kategori
+- **Profil** — Edit profil, ubah password
+- **PWA** — Install sebagai app di HP
+
+### Untuk Admin
+
+- **Dashboard** — Ringkasan transaksi, revenue, user aktif
+- **Manajemen User** — Lihat, blokir, reset password, edit saldo
+- **Manajemen Transaksi** — Filter, detail, retry, refund
+- **Manajemen Harga** — Edit markup per produk, bulk markup
+- **Manajemen Voucher** — Buat, edit, nonaktifkan voucher
+- **Laporan Keuangan** — Grafik revenue, export CSV
+- **Broadcast** — Kirim notifikasi ke semua user
+- **Log Aktivitas** — Riwayat semua aksi admin
+- **Pengaturan** — Konfigurasi sistem
+- **Sync Produk** — Sinkronisasi dari Digiflazz
+
+### Keamanan
+
+- **Race Condition** — Advisory lock + idempotency check
+- **SQL Injection** — Parameterized queries (SQLx)
+- **XSS** — Input sanitization
+- **Authentication** — JWT token + expiry
+- **Authorization** — Role-based access (user / admin / superadmin)
+- **Password** — bcrypt hashing
+- **Auto-Refund** — Saldo dikembalikan jika transaksi gagal
+
+## Instalasi
+
+### Termux (Android)
 
     pkg update && pkg upgrade -y
     pkg install -y postgresql rust nodejs-lts git pkg-config openssl
@@ -78,7 +153,7 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
     cd api && cargo build --release && cd ..
     ./start.sh
 
-## Install (Linux / macOS)
+### Linux / macOS
 
     git clone https://github.com/erlkim/pixel-pay.git
     cd pixel-pay
@@ -91,7 +166,7 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
     cd api && cargo build --release && cd ..
     ./start.sh
 
-## Install (Docker)
+### Docker
 
     git clone https://github.com/erlkim/pixel-pay.git
     cd pixel-pay
@@ -99,7 +174,7 @@ Platform PPOB 8-bit. Pulsa, token PLN, voucher game, e-wallet, TV kabel.
     nano api/.env
     docker-compose up -d
 
-## Environment
+## Environment Variables
 
 Salin api/.env.example ke api/.env lalu isi:
 
@@ -122,8 +197,10 @@ API key yang diawali dev- otomatis pakai mode testing.
 | Admin | http://localhost:5174 |
 | API | http://localhost:3001 |
 
-    ./start.sh    start semua
-    ./stop.sh     stop semua
+## Shortcut
+
+    ./start.sh    start semua layanan
+    ./stop.sh     stop semua layanan
 
 ## Default Account
 
