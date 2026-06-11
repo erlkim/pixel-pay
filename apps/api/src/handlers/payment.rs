@@ -419,11 +419,22 @@ pub async fn midtrans_config(
 }
 
 // Midtrans notification webhook
+use crate::middleware::security::verify_midtrans_signature;
 pub async fn midtrans_notification(
     State(s): State<AdminState>,
     Json(payload): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, AppError> {
     let order_id = payload.get("order_id").and_then(|v| v.as_str()).unwrap_or("");
+    
+    // Verify webhook signature
+    let status_code = payload.get("status_code").and_then(|v| v.as_str()).unwrap_or("200");
+    let gross_amount = payload.get("gross_amount").and_then(|v| v.as_str()).unwrap_or("0");
+    let signature = payload.get("signature_key").and_then(|v| v.as_str()).unwrap_or("");
+    let server_key = &s.config.midtrans_server_key;
+    if !server_key.is_empty() && !verify_midtrans_signature(order_id, status_code, gross_amount, server_key, signature) {
+        tracing::warn!("Invalid webhook signature for order: {}", order_id);
+        return Err(AppError::Validation("Invalid signature".into()));
+    }
     let transaction_status = payload.get("transaction_status").and_then(|v| v.as_str()).unwrap_or("");
     let fraud_status = payload.get("fraud_status").and_then(|v| v.as_str()).unwrap_or("");
 

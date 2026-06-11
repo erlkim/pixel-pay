@@ -12,6 +12,8 @@ pub struct AppConfig {
     pub server_port: u16,
     pub max_connections: u32,
     pub min_connections: u32,
+    pub allowed_origins: String,
+    pub midtrans_server_key: String,
 }
 
 impl AppConfig {
@@ -23,26 +25,18 @@ impl AppConfig {
             jwt_secret: env::var("JWT_SECRET")
                 .unwrap_or_else(|_| "pixel-pay-secret-change-me".into()),
             jwt_expiration_hours: env::var("JWT_EXPIRATION_HOURS")
-                .unwrap_or_else(|_| "24".into())
-                .parse()
-                .unwrap_or(24),
+                .unwrap_or_else(|_| "24".into()).parse().unwrap_or(24),
             digiflazz_username: env::var("DIGIFLAZZ_USERNAME").unwrap_or_default(),
             digiflazz_api_key: env::var("DIGIFLAZZ_API_KEY").unwrap_or_default(),
             digiflazz_base_url: env::var("DIGIFLAZZ_BASE_URL")
                 .unwrap_or_else(|_| "https://api.digiflazz.com/v1".into()),
             server_host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".into()),
-            server_port: env::var("PORT")
-                .unwrap_or_else(|_| "3001".into())
-                .parse()
-                .unwrap_or(3001),
-            max_connections: env::var("DB_MAX_CONNECTIONS")
-                .unwrap_or_else(|_| "20".into())
-                .parse()
-                .unwrap_or(20),
-            min_connections: env::var("DB_MIN_CONNECTIONS")
-                .unwrap_or_else(|_| "5".into())
-                .parse()
-                .unwrap_or(5),
+            server_port: env::var("PORT").unwrap_or_else(|_| "3001".into()).parse().unwrap_or(3001),
+            max_connections: env::var("DB_MAX_CONNECTIONS").unwrap_or_else(|_| "20".into()).parse().unwrap_or(20),
+            min_connections: env::var("DB_MIN_CONNECTIONS").unwrap_or_else(|_| "5".into()).parse().unwrap_or(5),
+            allowed_origins: env::var("ALLOWED_ORIGINS")
+                .unwrap_or_else(|_| "http://localhost:5173,http://localhost:5174".into()),
+            midtrans_server_key: env::var("MIDTRANS_SERVER_KEY").unwrap_or_default(),
         }
     }
 }

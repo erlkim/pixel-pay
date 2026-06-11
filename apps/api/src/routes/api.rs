@@ -1,22 +1,35 @@
-use axum::{routing::{get, post, put}, Router};
+use axum::{routing::{get, post, put}, Router, middleware};
 use sqlx::PgPool;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{AllowOrigin, CorsLayer};
 use crate::{
     config::AppConfig, handlers::*, services::DigiflazzService,
     handlers::admin::AdminState,
+    middleware::security::{RateLimiter, LoginLimiter, global_rate_limit, auth_rate_limit, security_headers},
 };
 
 pub fn build_router(pool: PgPool, config: AppConfig) -> Router {
     let dg = DigiflazzService::new(config.clone());
     let auth_s = auth::AuthState { pool: pool.clone(), config: config.clone() };
     let adm_s = AdminState { pool: pool.clone(), digiflazz: dg.clone(), config: config.clone() };
-    let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any);
+
+    // CORS - whitelist origins
+    let origins: Vec<_> = config.allowed_origins.split(',')
+        .filter_map(|s| s.trim().parse().ok()).collect();
+    let cors = CorsLayer::new()
+        .allow_origin(AllowOrigin::list(origins))
+        .allow_methods(tower_http::cors::Any)
+        .allow_headers(tower_http::cors::Any);
+
+    // Security instances
+    let global_limiter = RateLimiter::new(100, 60);
+    let auth_limiter = LoginLimiter::new();
 
     let auth_r = Router::new()
         .route("/register", post(auth::register))
         .route("/login", post(auth::login))
         .route("/me", get(auth::me))
-        .with_state(auth_s);
+        .with_state(auth_s)
+        .route_layer(middleware::from_fn_with_state(auth_limiter, auth_rate_limit));
 
     let prod_r = Router::new()
         .route("/categories", get(product::list_categories))
@@ -104,4 +117,6 @@ pub fn build_router(pool: PgPool, config: AppConfig) -> Router {
         .nest("/api/payment", payment_r)
         .nest("/api/webhook", webhook_r)
         .layer(cors)
+        .layer(middleware::from_fn(security_headers))
+        .route_layer(middleware::from_fn_with_state(global_limiter, global_rate_limit))
 }
