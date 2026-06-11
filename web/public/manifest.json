@@ -1,0 +1,18 @@
+{
+  "name": "Pixel Pay",
+  "short_name": "PixelPay",
+  "description": "Platform PPOB 8-bit: Pulsa, Token PLN, Voucher Game, E-Wallet",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a12",
+  "theme_color": "#00ff88",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

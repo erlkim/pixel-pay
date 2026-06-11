@@ -1,0 +1,29 @@
+{
+  "name": "pixel-pay",
+  "private": true,
+  "workspaces": [
+    "database",
+    "admin",
+    "web"
+  ],
+  "scripts": {
+    "dev:api": "cd api && cargo watch -x run",
+    "dev:admin": "npm run dev -w admin",
+    "dev:web": "npm run dev -w web",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:admin\" \"npm run dev:web\"",
+    "db:push": "npm run push -w database",
+    "db:seed": "npm run seed -w database",
+    "db:studio": "npm run studio -w database",
+    "build:admin": "npm run build -w admin",
+    "build:web": "npm run build -w web",
+    "build": "npm run build:admin && npm run build:web && cd api && cargo build --release"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "allowScripts": {
+    "es5-ext@0.10.64": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.0": true
+  }
+}
