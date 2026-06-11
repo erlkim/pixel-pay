@@ -1,25 +1,24 @@
 # Rust
+apps/api/target/
 target/
-api/target/
-**/*.lock
 
 # Node
 node_modules/
-web/node_modules/
-admin/node_modules/
-web/dist/
-admin/dist/
+apps/*/node_modules/
+apps/*/dist/
+database/node_modules/
 
 # Environment & Secrets
 .env
-api/.env
+apps/api/.env
 *.pem
 *.key
 
-# PID files
-.pids
+# Build info
+*.tsbuildinfo
 
-# Logs
+# PID & Logs
+.pids
 *.log
 
 # OS

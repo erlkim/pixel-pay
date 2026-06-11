@@ -121,7 +121,7 @@ export default function PriceManagementPage() {
                 <tr key={p.id} className="border-b border-px-border/50 hover:bg-px-primary/5 transition-colors">
                   <td className="p-3 font-pixel text-[7px] text-px-white max-w-[200px] truncate">{p.name}</td>
                   <td className="p-3 font-body text-lg text-px-muted">{p.brand}</td>
-                  <td className="p-3 font-pixel text-[8px] text-px-muted text-right">Rp {parseFloat(p.sell_price / 1.05).toLocaleString("id-ID")}</td>
+                  <td className="p-3 font-pixel text-[8px] text-px-muted text-right">Rp {(p.sell_price / 1.05).toLocaleString("id-ID")}</td>
                   <td className="p-3 font-pixel text-[8px] text-px-yellow text-right">{p.sell_price_formatted}</td>
                   <td className="p-3 font-pixel text-[8px] text-px-primary text-right">Rp {(parseFloat(p.sell_price) - parseFloat(p.sell_price) / 1.05).toLocaleString("id-ID")}</td>
                   <td className="p-3 text-center">

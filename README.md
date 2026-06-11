@@ -24,77 +24,43 @@ Pixel Pay adalah platform Top Up Game & PPOB (Payment Point Online Bank) dengan 
     |-- docker-compose.yml
     |-- .env.example
     |-- .gitignore
-    |-- api/
-    |   |-- Cargo.toml
-    |   |-- .env
-    |   |-- .env.example
-    |   |-- migrations/
-    |   +-- src/
-    |       |-- main.rs
-    |       |-- config.rs
-    |       |-- db.rs
-    |       |-- error.rs
-    |       |-- handlers/
-    |       |   |-- auth.rs
-    |       |   |-- wallet.rs
-    |       |   |-- product.rs
-    |       |   |-- transaction.rs
-    |       |   |-- payment.rs
-    |       |   |-- profile.rs
-    |       |   |-- notification.rs
-    |       |   |-- voucher.rs
-    |       |   |-- admin.rs
-    |       |   |-- admin_detail.rs
-    |       |   +-- admin_export.rs
-    |       |-- middleware/
-    |       |   +-- auth.rs
-    |       |-- models/
-    |       |-- routes/
-    |       |   +-- api.rs
-    |       +-- services/
-    |           |-- digiflazz_service.rs
-    |           |-- midtrans.rs
-    |           |-- transaction_service.rs
-    |           +-- wallet_service.rs
-    |-- web/
-    |   |-- index.html
-    |   |-- package.json
-    |   |-- vite.config.ts
-    |   |-- tailwind.config.ts
-    |   |-- tsconfig.json
-    |   |-- postcss.config.js
-    |   +-- src/
-    |       |-- main.tsx
-    |       |-- App.tsx
-    |       |-- index.css
-    |       |-- lib/
-    |       |-- hooks/
-    |       |-- components/
-    |       +-- pages/
-    |-- admin/
-    |   |-- index.html
-    |   |-- package.json
-    |   |-- vite.config.ts
-    |   |-- tailwind.config.ts
-    |   |-- tsconfig.json
-    |   |-- postcss.config.js
-    |   +-- src/
-    |       |-- main.tsx
-    |       |-- App.tsx
-    |       |-- index.css
-    |       |-- lib/
-    |       |-- hooks/
-    |       |-- components/
-    |       +-- pages/
-    +-- database/
+    |-- apps/
+    |   |-- api/                  Backend (Rust + Axum)
+    |   |   |-- Cargo.toml
+    |   |   |-- .env.example
+    |   |   |-- migrations/
+    |   |   +-- src/
+    |   |       |-- main.rs
+    |   |       |-- config.rs
+    |   |       |-- db.rs
+    |   |       |-- error.rs
+    |   |       |-- handlers/
+    |   |       |-- middleware/
+    |   |       |-- models/
+    |   |       |-- routes/
+    |   |       +-- services/
+    |   |-- web/                  Frontend user (React + Vite)
+    |   |   |-- package.json
+    |   |   |-- vite.config.ts
+    |   |   +-- src/
+    |   |       |-- pages/
+    |   |       |-- components/
+    |   |       |-- hooks/
+    |   |       +-- lib/
+    |   +-- admin/                Frontend admin (React + Vite)
+    |       |-- package.json
+    |       |-- vite.config.ts
+    |       +-- src/
+    |           |-- pages/
+    |           |-- components/
+    |           |-- hooks/
+    |           +-- lib/
+    +-- database/                 Schema & seed (Drizzle ORM)
         |-- package.json
-        |-- tsconfig.json
         |-- drizzle.config.ts
         +-- src/
-            |-- index.ts
-            |-- client.ts
-            |-- seed.ts
-            +-- schema/
+            |-- schema/
+            +-- seed.ts
 
 ## Fitur Utama
 
@@ -146,11 +112,12 @@ Pixel Pay adalah platform Top Up Game & PPOB (Payment Point Online Bank) dengan 
     createuser -s root
     createdb pixel_pay
     psql -d pixel_pay -f database/schema.sql
-    cp api/.env.example api/.env
-    nano api/.env
-    cd web && npm install && cd ..
-    cd admin && npm install && cd ..
-    cd api && cargo build --release && cd ..
+    cp apps/api/.env.example apps/api/.env
+    nano apps/api/.env
+    npm install
+    cd apps/api && cargo build --release && cd ../..
+    cd apps/web && npm run build && cd ../..
+    cd apps/admin && npm run build && cd ../..
     ./start.sh
 
 ### Linux / macOS
@@ -159,24 +126,25 @@ Pixel Pay adalah platform Top Up Game & PPOB (Payment Point Online Bank) dengan 
     cd pixel-pay
     createdb pixel_pay
     psql -d pixel_pay -f database/schema.sql
-    cp api/.env.example api/.env
-    nano api/.env
-    cd web && npm install && cd ..
-    cd admin && npm install && cd ..
-    cd api && cargo build --release && cd ..
+    cp apps/api/.env.example apps/api/.env
+    nano apps/api/.env
+    npm install
+    cd apps/api && cargo build --release && cd ../..
+    cd apps/web && npm run build && cd ../..
+    cd apps/admin && npm run build && cd ../..
     ./start.sh
 
 ### Docker
 
     git clone https://github.com/erlkim/pixel-pay.git
     cd pixel-pay
-    cp api/.env.example api/.env
-    nano api/.env
+    cp apps/api/.env.example apps/api/.env
+    nano apps/api/.env
     docker-compose up -d
 
 ## Environment Variables
 
-Salin api/.env.example ke api/.env lalu isi:
+Salin apps/api/.env.example ke apps/api/.env lalu isi:
 
 | Variable | Keterangan |
 |----------|-----------|

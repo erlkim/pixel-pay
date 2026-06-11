@@ -3,20 +3,20 @@
   "private": true,
   "workspaces": [
     "database",
-    "admin",
-    "web"
+    "apps/admin",
+    "apps/web"
   ],
   "scripts": {
-    "dev:api": "cd api && cargo watch -x run",
-    "dev:admin": "npm run dev -w admin",
-    "dev:web": "npm run dev -w web",
+    "dev:api": "cd apps/api && cargo watch -x run",
+    "dev:admin": "npm run dev -w apps/admin",
+    "dev:web": "npm run dev -w apps/web",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:admin\" \"npm run dev:web\"",
     "db:push": "npm run push -w database",
     "db:seed": "npm run seed -w database",
     "db:studio": "npm run studio -w database",
-    "build:admin": "npm run build -w admin",
-    "build:web": "npm run build -w web",
-    "build": "npm run build:admin && npm run build:web && cd api && cargo build --release"
+    "build:admin": "npm run build -w apps/admin",
+    "build:web": "npm run build -w apps/web",
+    "build": "npm run build:admin && npm run build:web && cd apps/api && cargo build --release"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"
