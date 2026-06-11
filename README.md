@@ -16,17 +16,38 @@ Pixel Pay adalah platform Top Up Game & PPOB (Payment Point Online Bank) dengan 
 
 ```
 pixel-pay/
-+-- README.md
-+-- package.json
-+-- start.sh
-+-- stop.sh
-+-- apps/
-|   +-- api/  Backend (Rust + Axum)
-|   |   +-- Cargo.toml, .env, src/
-|   +-- web/  Frontend user (React + Vite)
-|   |   +-- package.json, src/
-|   +-- admin/ Frontend admin (React + Vite)
-|       +-- package.json, src/
+├─ README.md
+├─ package.json
+├─ start.sh
+├─ stop.sh
+├─ apps/
+│   ├─ api/  Backend (Rust + Axum)
+│   │   ├─ Cargo.toml
+│   │   ├─ .env
+│   │   └─ src/
+│   │       ├─ main.rs
+│   │       ├─ config.rs
+│   │       ├─ db.rs
+│   │       ├─ error.rs
+│   │       ├─ handlers/
+│   │       ├─ middleware/
+│   │       ├─ models/
+│   │       ├─ routes/
+│   │       └─ services/
+│   ├─ web/  Frontend user (React + Vite)
+│   │   ├─ package.json
+│   │   └─ src/
+│   │       ├─ pages/
+│   │       ├─ components/
+│   │       ├─ hooks/
+│   │       └─ lib/
+│   └─ admin/  Frontend admin (React + Vite)
+│       ├─ package.json
+│       └─ src/
+│           ├─ pages/
+│           ├─ components/
+│           ├─ hooks/
+│           └─ lib/
 ```
 
 ## Fitur Utama
